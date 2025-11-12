@@ -19,4 +19,3 @@ def test_calculate_sum_mixed():
     """Test calculate_sum with mixed int and float inputs."""
     assert calculate_sum(5, 3.5) == 8.5
     assert calculate_sum(10.2, 5) == 15.2
-
