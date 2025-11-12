@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ "develop", "feature/**" ]
+    branches: [ "**" ]
   pull_request:
-    branches: [ "develop", "main" ]
+    branches: [ "**" ]
 
 jobs:
   build-test:
@@ -24,9 +24,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Lint placeholder
+      - name: Run flake8 linting
         run: |
-          echo "Add flake8 or ruff later"
+          flake8 . --max-line-length=90 --exclude=venv,__pycache__,.git
+
+      - name: Run pytest unit tests
+        run: |
+          pytest tests/ -v
 
       - name: Build Docker image
         uses: docker/build-push-action@v6
