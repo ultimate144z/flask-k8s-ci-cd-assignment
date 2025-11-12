@@ -18,7 +18,7 @@ pipeline {
       steps {
         script {
           echo "Building Docker image: ${DOCKER_IMAGE}:${DOCKER_TAG}"
-          sh """
+          bat """
             docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
             docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
           """
@@ -30,7 +30,7 @@ pipeline {
       steps {
         script {
           echo "Deploying to Kubernetes namespace: ${KUBECTL_NAMESPACE}"
-          sh """
+          bat """
             kubectl apply -f kubernetes/ --namespace=${KUBECTL_NAMESPACE}
           """
         }
@@ -41,18 +41,18 @@ pipeline {
       steps {
         script {
           echo "Verifying deployment status..."
-          sh """
-            echo "Checking rollout status..."
+          bat """
+            echo Checking rollout status...
             kubectl rollout status deployment/flask-app-deploy --namespace=${KUBECTL_NAMESPACE} --timeout=120s
             
-            echo "Verifying pods..."
+            echo Verifying pods...
             kubectl get pods -l app=flask-app --namespace=${KUBECTL_NAMESPACE}
             
-            echo "Verifying services..."
+            echo Verifying services...
             kubectl get services -l app=flask-app --namespace=${KUBECTL_NAMESPACE}
             
-            echo "Checking pod status..."
-            kubectl get pods -l app=flask-app --namespace=${KUBECTL_NAMESPACE} -o jsonpath='{.items[*].status.phase}' | grep -q Running || exit 1
+            echo Checking pod status...
+            kubectl get pods -l app=flask-app --namespace=${KUBECTL_NAMESPACE} -o jsonpath="{.items[*].status.phase}" | findstr Running >nul || exit /b 1
           """
         }
       }
@@ -62,18 +62,18 @@ pipeline {
   post {
     success {
       echo "Pipeline completed successfully!"
-      sh """
-        echo "Final deployment status:"
+      bat """
+        echo Final deployment status:
         kubectl get pods,services,deployments -l app=flask-app --namespace=${KUBECTL_NAMESPACE}
       """
     }
     failure {
       echo "Pipeline failed!"
-      sh """
-        echo "Current pod status:"
+      bat """
+        echo Current pod status:
         kubectl get pods -l app=flask-app --namespace=${KUBECTL_NAMESPACE}
-        echo "Pod logs (last 50 lines):"
-        kubectl logs -l app=flask-app --namespace=${KUBECTL_NAMESPACE} --tail=50 || true
+        echo Pod logs (last 50 lines):
+        kubectl logs -l app=flask-app --namespace=${KUBECTL_NAMESPACE} --tail=50 || echo Log fetch failed
       """
     }
     always {
@@ -81,4 +81,3 @@ pipeline {
     }
   }
 }
-
