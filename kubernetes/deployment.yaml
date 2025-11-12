@@ -21,8 +21,8 @@ spec:
     spec:
       containers:
         - name: flask-app
-          image: ghcr.io/YOUR_GH_USERNAME/flask-k8s-ci-cd-assignment:latest
-          imagePullPolicy: IfNotPresent
+          image: flask-k8s-ci-cd-assignment:latest
+          imagePullPolicy: Never   # 👈 prevents pulling from remote registries
           ports:
             - containerPort: 5000
           resources:
@@ -48,4 +48,3 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 3
             failureThreshold: 3
-
